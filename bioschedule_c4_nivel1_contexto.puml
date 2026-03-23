@@ -1,0 +1,17 @@
+@startuml C4_Context_BioSchedule
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+title Diagrama de Contexto (Nível 1) - BioSchedule
+
+Person(recepcionista, "Recepcionista / Admin", "Usuário responsável por cadastrar pacientes, serviços e gerenciar a agenda da clínica")
+Person(biomedico, "Biomédico / Profissional", "Profissional que realiza os procedimentos e consulta o histórico dos pacientes")
+
+System(bioschedule, "BioSchedule", "Plataforma de gestão e agendamento para clínicas de biomedicina estética. Centraliza prontuários, agendamentos e histórico de procedimentos")
+
+System_Ext(email_system, "Sistema de E-mail (SMTP)", "Serviço externo de envio de e-mails para confirmações e lembretes de agendamento")
+
+Rel(recepcionista, bioschedule, "Cadastra pacientes, serviços e realiza agendamentos", "Web Browser / Tablet")
+Rel(biomedico, bioschedule, "Consulta agenda e histórico de procedimentos", "Web Browser / Tablet")
+BiRel(bioschedule, email_system, "Envia confirmações e notificações de agendamento", "SMTP")
+
+@enduml

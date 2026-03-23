@@ -1,0 +1,30 @@
+@startuml C4_Container_BioSchedule
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title Diagrama de Contêineres (Nível 2) - BioSchedule
+
+Person(recepcionista, "Recepcionista / Admin", "Gerencia agenda, pacientes e serviços")
+Person(biomedico, "Biomédico / Profissional", "Consulta agenda e prontuários")
+
+System_Boundary(bioschedule, "BioSchedule") {
+
+    Container(frontend, "Frontend Web", "Next.js / React", "Interface responsiva para gerenciamento de agendamentos, cadastro de pacientes e catálogo de serviços. Acessível via browser em tablets e desktops")
+
+    Container(backend, "API Backend", "Node.js / NestJS", "Provê endpoints RESTful para toda a lógica de negócio: CRUD de pacientes, serviços e agendamentos, validação de conflitos de horário e controle de status")
+
+    ContainerDb(database, "Banco de Dados", "PostgreSQL", "Armazena de forma relacional: pacientes, serviços, agendamentos e histórico de procedimentos. Garante integridade referencial entre as entidades")
+
+}
+
+System_Ext(email_system, "Sistema de E-mail (SMTP)", "Serviço externo de notificações")
+
+Rel(recepcionista, frontend, "Acessa via", "HTTPS / Browser")
+Rel(biomedico, frontend, "Acessa via", "HTTPS / Browser")
+
+Rel(frontend, backend, "Faz chamadas REST para", "JSON / HTTPS")
+
+Rel(backend, database, "Lê e escreve dados usando", "Prisma ORM / TCP")
+
+Rel(backend, email_system, "Envia notificações via", "SMTP")
+
+@enduml

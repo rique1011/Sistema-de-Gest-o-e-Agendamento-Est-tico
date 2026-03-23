@@ -1,0 +1,47 @@
+@startuml C4_Component_BioSchedule_Backend
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Diagrama de Componentes (Nível 3) - API Backend (NestJS)
+
+Container(frontend, "Frontend Web", "Next.js / React", "Interface da clínica")
+ContainerDb(database, "Banco de Dados", "PostgreSQL", "Persistência relacional")
+System_Ext(email_system, "Sistema de E-mail (SMTP)", "Envio de notificações")
+
+Container_Boundary(backend, "API Backend - NestJS") {
+
+    Component(auth_module, "Auth Module", "NestJS Guard / JWT", "Responsável pela autenticação e autorização de usuários. Protege os endpoints da API com tokens JWT (RNF03)")
+
+    Component(paciente_controller, "Paciente Controller", "NestJS Controller", "Expõe endpoints REST para CRUD completo de pacientes: criação, listagem, atualização e remoção (RF01)")
+
+    Component(servico_controller, "Serviço Controller", "NestJS Controller", "Expõe endpoints REST para gerenciamento do catálogo de serviços com preço e duração (RF02)")
+
+    Component(agendamento_controller, "Agendamento Controller", "NestJS Controller", "Expõe endpoints REST para criação e atualização de agendamentos, incluindo controle de status (RF03 / RF04)")
+
+    Component(agendamento_service, "Agendamento Service", "NestJS Service", "Contém a lógica de negócio central: calcula data_fim com base na duração do serviço e valida conflitos de horário antes de persistir (RF03)")
+
+    Component(notification_service, "Notification Service", "NestJS Service", "Serviço responsável por enviar e-mails de confirmação e lembretes de agendamento ao paciente")
+
+    Component(prisma_service, "Prisma Service", "Prisma ORM", "Camada de abstração do banco de dados. Gerencia todas as queries, transações e migrations com type-safety (RNF01 / RNF04)")
+
+}
+
+Rel(frontend, auth_module, "Autentica usuário via", "JSON / HTTPS")
+Rel(frontend, paciente_controller, "Faz chamadas CRUD de pacientes", "JSON / HTTPS")
+Rel(frontend, servico_controller, "Faz chamadas CRUD de serviços", "JSON / HTTPS")
+Rel(frontend, agendamento_controller, "Cria e gerencia agendamentos", "JSON / HTTPS")
+
+Rel(paciente_controller, auth_module, "Valida token de acesso via", "Guard")
+Rel(servico_controller, auth_module, "Valida token de acesso via", "Guard")
+Rel(agendamento_controller, auth_module, "Valida token de acesso via", "Guard")
+
+Rel(agendamento_controller, agendamento_service, "Delega lógica de negócio para")
+Rel(agendamento_service, notification_service, "Aciona após confirmar agendamento")
+Rel(notification_service, email_system, "Envia e-mail via", "SMTP")
+
+Rel(paciente_controller, prisma_service, "Persiste dados via")
+Rel(servico_controller, prisma_service, "Persiste dados via")
+Rel(agendamento_service, prisma_service, "Consulta e persiste dados via")
+
+Rel(prisma_service, database, "Lê e escreve via", "TCP / SQL")
+
+@enduml
