@@ -47,3 +47,13 @@ enum Status {
   FALTOU
   CANCELADO
 }
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String   // Aqui vamos guardar a senha criptografada (nunca em texto puro!)
+  criado_em DateTime @default(now())
+
+  @@map("usuarios")
+}

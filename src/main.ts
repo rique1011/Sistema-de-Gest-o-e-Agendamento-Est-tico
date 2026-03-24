@@ -16,6 +16,7 @@ async function bootstrap() {
     .setTitle('API BioSchedule')
     .setDescription('Documentação da API para o sistema de gestão e agendamento estético.')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
     
   const document = SwaggerModule.createDocument(app, config);

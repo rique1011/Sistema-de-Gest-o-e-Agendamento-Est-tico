@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { ApiQuery } from '@nestjs/swagger'; // Importe isso para o Swagger
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger'; // Adicionamos ApiBearerAuth e ApiTags
+import { AuthGuard } from '../auth/auth.guard';
 import { AgendamentoService } from './agendamento.service';
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 import { UpdateAgendamentoDto } from './dto/update-agendamento.dto';
 
+@ApiTags('agendamento') // Agrupa as rotas de agendamento no Swagger
+@ApiBearerAuth()        // Ativa o cadeado de segurança para este controller
+@UseGuards(AuthGuard)   // Aplica a regra de segurança (JWT)
 @Controller('agendamento')
 export class AgendamentoController {
   constructor(private readonly agendamentoService: AgendamentoService) {}
@@ -13,9 +17,8 @@ export class AgendamentoController {
     return this.agendamentoService.create(createAgendamentoDto);
   }
 
-  // --- NOVA ROTA GET COM FILTRO ---
   @Get()
-  @ApiQuery({ name: 'data', required: false, description: 'Filtra por data no formato YYYY-MM-DD (ex: 2026-04-15)' })
+  @ApiQuery({ name: 'data', required: false, description: 'Filtra por data (YYYY-MM-DD)' })
   findAll(@Query('data') data?: string) {
     return this.agendamentoService.findAll(data);
   }
