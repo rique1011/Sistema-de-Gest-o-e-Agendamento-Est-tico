@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AgendamentoController } from './agendamento.controller';
 import { AgendamentoService } from './agendamento.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AgendamentoController', () => {
   let controller: AgendamentoController;
@@ -8,7 +10,11 @@ describe('AgendamentoController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AgendamentoController],
-      providers: [AgendamentoService],
+      providers: [
+        AgendamentoService,
+        PrismaService,
+        JwtService, // Necessário por causa do AuthGuard no Controller
+      ],
     }).compile();
 
     controller = module.get<AgendamentoController>(AgendamentoController);

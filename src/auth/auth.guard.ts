@@ -22,7 +22,7 @@ export class AuthGuard implements CanActivate {
     try {
       // Aqui validamos o token usando a mesma chave secreta do .env
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'CHAVE_SUPER_SECRETA_BIOSCHEDULE_123',
+        secret: process.env.JWT_SECRET,
       });
       
       // Se deu certo, guardamos os dados do usuário dentro da requisição

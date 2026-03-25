@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PacienteController } from './paciente.controller';
 import { PacienteService } from './paciente.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('PacienteController', () => {
   let controller: PacienteController;
@@ -8,7 +10,7 @@ describe('PacienteController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PacienteController],
-      providers: [PacienteService],
+      providers: [PacienteService, PrismaService, JwtService], // JwtService para o AuthGuard
     }).compile();
 
     controller = module.get<PacienteController>(PacienteController);
