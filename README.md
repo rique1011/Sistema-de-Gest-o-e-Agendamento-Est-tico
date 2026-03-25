@@ -1,89 +1,88 @@
-# Sistema de Gestão e Agendamento Estético
+# 🩺 BioSchedule - Sistema de Gestão e Agendamento Estético
 
-É uma plataforma modular projetada para clínicas de biomedicina estética, com uma arquitetura flexível que permite adaptação para qualquer setor que dependa de agendamentos e prontuários (como odontologia, estúdios de tatuagem ou consultórios).
+O **BioSchedule** é uma plataforma modular de alta performance projetada para clínicas de biomedicina estética. Sua arquitetura flexível permite a fácil adaptação para qualquer setor que dependa de agendamentos e prontuários estruturados (odontologia, estúdios de tatuagem ou consultórios).
 
 ---
 
 ## 1. Domínio do Problema
-
-Clínicas de estética enfrentam desafios na gestão de horários e na manutenção de históricos detalhados. O sistema visa resolver:
+Clínicas de estética enfrentam desafios críticos na gestão de horários e na manutenção de históricos detalhados. O sistema visa resolver:
 * **Fragmentação de dados:** Centraliza prontuários, fotos de evolução e agendamentos em um só lugar.
 * **Ociosidade e Conflitos:** Otimiza a agenda com base na duração real de cada procedimento técnico.
-* **Falta de Histórico:** Mantém um registro cronológico de intervenções para segurança jurídica e acompanhamento de resultados.
-
----
+* **Segurança Jurídica:** Mantém um registro cronológico de intervenções para acompanhamento de resultados.
 
 ## 2. Funcionalidades Principais (Operations)
-
-Para garantir a eficiência e a adaptabilidade, o sistema foca em 5 operações essenciais:
-
-1.  **Agenda Dinâmica com Bloqueio de Conflitos:** O sistema não permite sobreposição de horários. Ao tentar agendar, o backend valida se o profissional ou a sala estão disponíveis no intervalo exato entre a `data_inicio` e `data_fim`.
-2.  **Cálculo Automático de Tempo por Procedimento:** O usuário escolhe o serviço (ex: Limpeza de Pele - 60min) e o sistema calcula automaticamente o horário de término, otimizando as janelas de atendimento sem necessidade de cálculo manual.
-3.  **Prontuário de Evolução Estética:** Permite o registro de anamnese e o upload de fotos para acompanhamento de resultados (Antes e Depois), vinculando cada registro ao histórico do paciente.
-4.  **Gestão de Status e Fluxo de Atendimento:** Controle visual do ciclo do cliente (Agendado -> Em Atendimento -> Concluído -> Faltou), gerando métricas de produtividade para a clínica.
-5.  **Motor de Serviços Configurável (Adaptabilidade):** Interface para cadastrar qualquer tipo de serviço com tempos e valores variados, permitindo que o sistema mude de "Estética" para "Fisioterapia" ou "Barbearia" apenas alterando o catálogo.
-
----
+* **Agenda Dinâmica com Bloqueio de Conflitos:** O backend valida a disponibilidade entre `data_inicio` e `data_fim`, impedindo sobreposições.
+* **Cálculo Automático de Tempo:** Otimização de janelas de atendimento baseada na duração cadastrada de cada serviço.
+* **Prontuário de Evolução Estética:** Registro de anamnese e acompanhamento de resultados vinculado ao histórico do paciente.
+* **Segurança Robusta:** Autenticação via JWT (JSON Web Token) e criptografia de senhas com Bcrypt.
+* **Motor de Serviços Configurável:** Interface para cadastrar qualquer serviço com tempos e valores variados (Adaptabilidade).
 
 ## 3. Requisitos do Sistema
 
 ### ✅ Requisitos Funcionais (RF)
-* **RF01 - Gestão de Pacientes:** Cadastro completo (CRUD) com histórico de procedimentos realizados.
-* **RF02 - Catálogo de Serviços:** Cadastro de procedimentos com definição de preço e tempo de duração.
-* **RF03 - Agenda Inteligente:** Criação de agendamentos vinculando paciente e serviço.
-* **RF04 - Controle de Status:** Alteração de estados do agendamento em tempo real.
+* **RF01 - Gestão de Usuários (Staff):** Cadastro de funcionários com senhas criptografadas.
+* **RF02 - Autenticação Segura:** Sistema de Login com emissão de Token JWT (Bearer).
+* **RF03 - Gestão de Pacientes:** CRUD completo e histórico de procedimentos.
+* **RF04 - Catálogo de Serviços:** Cadastro de procedimentos com preço e tempo de duração.
+* **RF05 - Agenda Inteligente:** Bloqueio automático de horários conflitantes.
+* **RF06 - Filtro de Atendimento:** Busca de agendamentos por data para a recepção.
 
 ### 🛠 Requisitos Não Funcionais (RNF)
-* **RNF01 - Persistência de Dados:** Uso de banco de dados relacional para garantir a integridade referencial.
-* **RNF02 - Interface Responsiva:** O sistema deve ser utilizável em tablets e desktops.
-* **RNF03 - Segurança:** Implementação de autenticação para proteger dados sensíveis de saúde.
-* **RNF04 - Arquitetura Modular:** Código estruturado para permitir a troca de regras de negócio facilmente.
+* **RNF01 - Persistência:** PostgreSQL para garantir integridade referencial.
+* **RNF02 - Segurança:** Implementação de `AuthGuards` em rotas sensíveis.
+* **RNF03 - Documentação:** API totalmente documentada via Swagger (OpenAPI).
+* **RNF04 - Testabilidade:** Cobertura de testes unitários e de integração (E2E).
 
----
-
-## 4. Arquitetura e Modelagem
-
-O sistema segue o padrão de arquitetura modular (MVC), separando interface, lógica de negócio e persistência.
-
-### Modelagem de Dados (Entidades Principais)
-
-1.  **Paciente:** Dados pessoais e de contato (`id`, `nome`, `cpf`, `telefone`).
-2.  **Servico:** Catálogo da clínica (`id`, `nome`, `duracao_minutos`, `valor`).
-3.  **Agendamento:** Entidade central (`id`, `paciente_id`, `servico_id`, `data_inicio`, `data_fim`, `status`).
-
----
-
-## 5. Tecnologias Utilizadas
+## 4. Tecnologias Utilizadas
 
 | Tecnologia | Função | Justificativa |
 | :--- | :--- | :--- |
-| **Next.js / React** | Frontend | Agilidade no desenvolvimento e excelente experiência de usuário (UX). |
-| **Node.js (NestJS)** | Backend | Estrutura robusta e escalável, ideal para sistemas de gestão. |
-| **PostgreSQL** | Banco de Dados | Confiabilidade para dados estruturados e suporte a consultas complexas. |
-| **Prisma ORM** | Integração | Facilita a manutenção do banco e garante tipagem segura (Type-safety). |
+| **Node.js (NestJS)** | Backend | Arquitetura modular (MVC) e tipagem segura com TypeScript. |
+| **PostgreSQL** | Banco de Dados | Confiabilidade para dados estruturados. |
+| **Prisma ORM** | Integração | Facilita a manutenção do banco e garante Type-safety. |
+| **JWT & Bcrypt** | Segurança | Autenticação padrão de mercado e proteção de dados sensíveis. |
+| **Swagger** | Documentação | Facilita o consumo da API pelo Frontend. |
+| **Jest & Supertest** | Testes | Garantia de qualidade e validação de regras de negócio. |
+| **Docker** | Infraestrutura | Ambiente isolado com Docker Compose. |
 
----
+## 5. Como Executar o Projeto
 
-## 6. Organização de Tarefas (Divisão da Dupla)
+### Pré-requisitos
+* Docker e Docker Compose instalados.
+* Node.js v18+.
 
-### **Membro A: Core & Backend**
-- [ ] Modelagem do Banco de Dados e Migrations.
-- [ ] Desenvolvimento da API de CRUD (Pacientes e Serviços).
-- [ ] Implementação da lógica de validação de conflitos de horários.
+### Instalação
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/seu-usuario/bioschedule-backend.git](https://github.com/seu-usuario/bioschedule-backend.git)
 
-### **Membro B: Interface & UX**
-- [ ] Criação do Design System e Protótipo da Agenda.
-- [ ] Desenvolvimento do Dashboard e Calendário Interativo.
-- [ ] Integração do Frontend com as APIs desenvolvidas.
+Suba o banco de dados via Docker:
 
----
+Bash
+docker-compose up -d
+Configuração do ambiente:
+Crie um arquivo .env na raiz do projeto seguindo o modelo:
 
-## 📐 Arquitetura (Modelo C4)
+Snippet de código
+DATABASE_URL="postgresql://admin:senha123@localhost:5432/bioschedule?schema=public"
+JWT_SECRET="sua_chave_secreta_segura"
+Instale as dependências e aplique as migrations:
 
-Os diagramas de arquitetura no modelo C4 estão disponíveis nos arquivos abaixo:
+Bash
+npm install
+npx prisma migrate dev
+Inicie o servidor em modo de desenvolvimento:
 
-- [Nível 1 - Contexto](./bioschedule_c4_nivel1_contexto.puml)
-- [Nível 2 - Contêineres](./bioschedule_c4_nivel2_containers.puml)
-- [Nível 3 - Componentes](./bioschedule_c4_nivel3_componentes.puml)
+Bash
+npm run start:dev
+6. Documentação e Qualidade
+API Documentation (Swagger)
+A documentação interativa das rotas pode ser acessada em:
+--> http://localhost:3000/api
 
-> Para visualizar, importe os arquivos `.puml` no [PlantUML Online](https://www.plantuml.com/plantuml/uml/) ou use a extensão PlantUML no VSCode.
+Suíte de Testes (Status: All Green)
+O projeto conta com validação automatizada para garantir que novas funcionalidades não quebrem o que já existe:
+
+Testes Unitários: npm run test (Valida lógica de conflitos e serviços).
+
+Testes E2E (Invasão): npm run test:e2e (Valida a eficácia dos filtros de segurança)
