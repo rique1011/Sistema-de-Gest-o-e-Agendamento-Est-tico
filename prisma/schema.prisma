@@ -4,56 +4,64 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // A linha 'url = env(...)' foi removida daqui!
+  // No Prisma 7, a URL de conexão fica no prisma.config.ts e no PrismaService
 }
 
 model Paciente {
-  id           String         @id @default(uuid())
+  id           String        @id @default(uuid())
   nome         String
-  cpf          String         @unique
+  cpf          String        @unique
   telefone     String
   email        String?
   agendamentos Agendamento[]
-  createdAt    DateTime       @default(now())
+  createdAt    DateTime      @default(now())
 }
 
 model Servico {
-  id               String         @id @default(uuid())
-  nome             String
-  duracao_minutos  Int
-  valor            Decimal        @db.Decimal(10, 2)
-  agendamentos     Agendamento[]
+  id              String        @id @default(uuid())
+  nome            String
+  duracao_minutos Int
+  valor           Decimal       @db.Decimal(10, 2)
+  agendamentos    Agendamento[]
 }
 
 model Agendamento {
-  id          String   @id @default(uuid())
+  id          String            @id @default(uuid())
   data_inicio DateTime
   data_fim    DateTime
-  status      Status   @default(AGENDADO)
+  status      StatusAgendamento @default(AGENDADO)
   
-  paciente    Paciente @relation(fields: [pacienteId], references: [id])
+  paciente    Paciente          @relation(fields: [pacienteId], references: [id])
   pacienteId  String
   
-  servico     Servico  @relation(fields: [servicoId], references: [id])
+  servico     Servico           @relation(fields: [servicoId], references: [id])
   servicoId   String
 
-  createdAt   DateTime @default(now())
-}
-
-enum Status {
-  AGENDADO
-  EM_ATENDIMENTO
-  CONCLUIDO
-  FALTOU
-  CANCELADO
+  createdAt   DateTime          @default(now())
 }
 
 model Usuario {
   id        String   @id @default(uuid())
   nome      String
   email     String   @unique
-  senha     String   // Aqui vamos guardar a senha criptografada (nunca em texto puro!)
+  senha     String   
   criado_em DateTime @default(now())
 
   @@map("usuarios")
+}
+
+model Bloqueio {
+  id          String   @id @default(uuid())
+  data_inicio DateTime
+  data_fim    DateTime
+  motivo      String?  
+  criado_em   DateTime @default(now())
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CONFIRMADO
+  CANCELADO
+  CONCLUIDO
+  FALTOU
 }

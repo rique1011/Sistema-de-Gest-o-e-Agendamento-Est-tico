@@ -1,78 +1,107 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import request from 'supertest'; // Importamos como 'request'
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import request from 'supertest'; 
 import { AppModule } from './../src/app.module';
+import { PrismaService } from './../src/prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
 
-  beforeEach(async () => {
+  // Usamos o 'beforeAll' para configurar o ambiente uma única vez
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // ESSENCIAL: Ativar validações para os testes de erro 400 passarem
+    app.useGlobalPipes(new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }));
+
     await app.init();
+
+    // Pegamos a instância do Prisma para preparar o banco
+    prisma = app.get<PrismaService>(PrismaService);
+
+    // Limpeza de segurança e Seed (Criação do usuário de teste)
+    await prisma.usuario.deleteMany(); // Remove lixo de testes anteriores
+    
+    const hash = await bcrypt.hash('senha123', 10);
+    await prisma.usuario.create({
+      data: {
+        nome: 'Admin Teste',
+        email: 'admin@bioschedule.com',
+        senha: hash,
+      },
+    });
+  });
+
+  // Fecha as conexões para o Jest não ficar "pendurado" no terminal
+  afterAll(async () => {
+    await prisma.$disconnect();
+    await app.close();
   });
 
   it('/ (GET) - Deve estar online', () => {
-    // Agora o nome 'request' existe e será reconhecido!
-    return request(app.getHttpServer())
+    return (request(app.getHttpServer()) as any)
       .get('/')
       .expect(200);
   });
 
   it('/agendamento (GET) - Deve barrar acesso sem Token (401)', () => {
-    return request(app.getHttpServer())
+    return (request(app.getHttpServer()) as any)
       .get('/agendamento')
       .expect(401);
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
-
-  it('/auth/login (POST) - Deve retornar um token com credenciais válidas', () => {
-    return request(app.getHttpServer())
+  it('/auth/login (POST) - Deve retornar um token com credenciais válidas', async () => {
+    return (request(app.getHttpServer()) as any)
       .post('/auth/login')
       .send({
-        email: 'admin@bioschedule.com', // Use o email que você criou no banco
+        email: 'admin@bioschedule.com',
         senha: 'senha123',
       })
-      .expect(201)
+      .expect(200)
       .then((response) => {
         expect(response.body).toHaveProperty('access_token');
       });
   });
 
   it('/paciente (GET) - Deve permitir acesso com Token válido', async () => {
-    // 1. Primeiro fazemos login para pegar o token
-    const loginResponse = await request(app.getHttpServer())
+    // 1. Fazemos login para obter um token real
+    const loginRes = await (request(app.getHttpServer()) as any)
       .post('/auth/login')
       .send({ email: 'admin@bioschedule.com', senha: 'senha123' });
 
-    const token = loginResponse.body.access_token;
+    const token = loginRes.body.access_token;
 
-    // 2. Usamos o token para acessar a rota protegida
-    return request(app.getHttpServer())
+    // 2. Testamos a rota protegida
+    return (request(app.getHttpServer()) as any)
       .get('/paciente')
-      .set('Authorization', `Bearer ${token}`) // Simula o cadeado do Swagger
+      .set('Authorization', `Bearer ${token}`)
       .expect(200);
   });
 
   it('/paciente (POST) - Deve retornar 400 ao enviar dados inválidos', async () => {
-    // 1. Primeiro pegamos o token
-    const loginRes = await request(app.getHttpServer())
+    const loginRes = await (request(app.getHttpServer()) as any)
       .post('/auth/login')
       .send({ email: 'admin@bioschedule.com', senha: 'senha123' });
 
-    const token = loginRes.body.access_token; // <--- Aqui está o segredo
+    const token = loginRes.body.access_token;
 
-    // 2. Agora usamos o token na requisição
-    return request(app.getHttpServer())
+    // Enviando campos vazios para forçar o ValidationPipe
+    return (request(app.getHttpServer()) as any)
       .post('/paciente')
       .set('Authorization', `Bearer ${token}`)
-      .send({ nome: '', email: 'invalido' })
+      .send({
+        nome: '',
+        email: 'email-invalido',
+      })
       .expect(400);
   });
 });
