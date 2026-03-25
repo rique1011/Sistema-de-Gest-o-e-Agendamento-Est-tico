@@ -12,6 +12,7 @@ describe('UsuarioService', () => {
       providers: [
         UsuarioService,
         {
+          // Criamos o Mock do Prisma para não precisar de banco de dados real nos testes unitários
           provide: PrismaService,
           useValue: {
             usuario: {
@@ -27,12 +28,49 @@ describe('UsuarioService', () => {
     prisma = module.get<PrismaService>(PrismaService);
   });
 
-  it('deve lançar erro se tentar cadastrar e-mail já existente', async () => {
-    const dto = { nome: 'Lucas', email: 'duplicado@teste.com', senha: '123' };
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
 
-    // Simula que o e-mail JÁ EXISTE no banco
+  it('deve lançar um ConflictException se o e-mail já estiver cadastrado', async () => {
+    const dto = { nome: 'Lucas', email: 'lucas@teste.com', senha: '123' };
+
+    // Simula que o Prisma encontrou um usuário existente (conflito)
     jest.spyOn(prisma.usuario, 'findUnique').mockResolvedValue(dto as any);
 
     await expect(service.create(dto)).rejects.toThrow(ConflictException);
+  });
+
+  it('deve transformar a senha em hash antes de salvar no banco', async () => {
+    const senhaPura = '123456';
+    const dto = { nome: 'Admin', email: 'admin@teste.com', senha: senhaPura };
+
+    /**
+     * SOLUÇÃO PARA O ERRO DA IMAGEM 5e38ab:
+     * Usamos ': any' nos argumentos e ': any' no retorno para ignorar a complexidade do PrismaPromise
+     */
+    jest.spyOn(prisma.usuario, 'create').mockImplementation((args: any): any => {
+      // Validamos se a senha que chegou no "banco" já está criptografada
+      expect(args.data.senha).not.toBe(senhaPura);
+      
+      // Verifica se o hash segue o padrão do Bcrypt ($2b$...)
+      expect(args.data.senha).toMatch(/^\$2[ayb]\$.{56}$/);
+
+      return Promise.resolve({
+        id: 'uuid-gerado-pelo-mock',
+        ...args.data,
+        criado_em: new Date(),
+      }) as any;
+    });
+
+    /**
+     * SOLUÇÃO PARA O ERRO DA IMAGEM 5e3fc8:
+     * Usamos 'as any' no resultado da chamada para que o TS nos deixe ler a propriedade .senha
+     */
+    const resultado = await service.create(dto) as any;
+
+    expect(resultado).toHaveProperty('id');
+    expect(resultado.senha).not.toBe(senhaPura);
+    expect(resultado.senha.length).toBeGreaterThan(20);
   });
 });

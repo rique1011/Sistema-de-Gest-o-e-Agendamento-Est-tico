@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AgendamentoService } from './agendamento.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('AgendamentoService', () => {
   let service: AgendamentoService;
@@ -57,4 +57,16 @@ describe('AgendamentoService', () => {
     const resultado = await service.create(dto);
     expect(resultado).toEqual(dto);
   });
+
+  it('deve lançar um BadRequestException se a data de fim for anterior à data de início', async () => {
+  const dto = {
+    data_inicio: '2026-03-24T15:00:00Z',
+    data_fim: '2026-03-24T14:00:00Z', // Hora de fim ANTES da de início
+    pacienteId: '123',
+    servicoId: '456',
+  };
+
+  // O teste espera que o service barre essa loucura
+  await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+});
 }); 

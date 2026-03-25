@@ -31,4 +31,48 @@ describe('AppController (e2e)', () => {
   afterAll(async () => {
     await app.close();
   });
+
+  it('/auth/login (POST) - Deve retornar um token com credenciais válidas', () => {
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'admin@bioschedule.com', // Use o email que você criou no banco
+        senha: 'senha123',
+      })
+      .expect(201)
+      .then((response) => {
+        expect(response.body).toHaveProperty('access_token');
+      });
+  });
+
+  it('/paciente (GET) - Deve permitir acesso com Token válido', async () => {
+    // 1. Primeiro fazemos login para pegar o token
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'admin@bioschedule.com', senha: 'senha123' });
+
+    const token = loginResponse.body.access_token;
+
+    // 2. Usamos o token para acessar a rota protegida
+    return request(app.getHttpServer())
+      .get('/paciente')
+      .set('Authorization', `Bearer ${token}`) // Simula o cadeado do Swagger
+      .expect(200);
+  });
+
+  it('/paciente (POST) - Deve retornar 400 ao enviar dados inválidos', async () => {
+    // 1. Primeiro pegamos o token
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'admin@bioschedule.com', senha: 'senha123' });
+
+    const token = loginRes.body.access_token; // <--- Aqui está o segredo
+
+    // 2. Agora usamos o token na requisição
+    return request(app.getHttpServer())
+      .post('/paciente')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ nome: '', email: 'invalido' })
+      .expect(400);
+  });
 });
