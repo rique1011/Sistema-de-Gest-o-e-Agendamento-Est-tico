@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
@@ -7,30 +7,29 @@ import { UpdatePacienteDto } from './dto/update-paciente.dto';
 export class PacienteService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPacienteDto: CreatePacienteDto) {
-    return this.prisma.paciente.create({
-      data: createPacienteDto,
-    });
+  create(data: CreatePacienteDto) {
+    return this.prisma.paciente.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.paciente.findMany();
+  findAll() {
+    return this.prisma.paciente.findMany({ orderBy: { nome: 'asc' } });
   }
 
-  async findOne(id: string) {
-    const paciente = await this.prisma.paciente.findUnique({ where: { id } });
-    if (!paciente) throw new NotFoundException('Paciente não encontrado');
-    return paciente;
+  findOne(id: string) {
+    return this.prisma.paciente.findUnique({ where: { id } });
   }
 
-  async update(id: string, updatePacienteDto: UpdatePacienteDto) {
-    return this.prisma.paciente.update({
-      where: { id },
-      data: updatePacienteDto,
-    });
+  update(id: string, data: UpdatePacienteDto) {
+    return this.prisma.paciente.update({ where: { id }, data });
   }
 
   async remove(id: string) {
+    // 1. Remove agendamentos vinculados para evitar erro de integridade
+    await this.prisma.agendamento.deleteMany({
+      where: { pacienteId: id }
+    });
+
+    // 2. Remove o paciente
     return this.prisma.paciente.delete({ where: { id } });
   }
 }

@@ -1,12 +1,26 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  // No Prisma 7, a URL de conexão fica no prisma.config.ts e no PrismaService
+  // A URL deve estar no seu arquivo .env como DATABASE_URL
 }
 
+// 1. USUÁRIOS (Sistema de Login)
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  criado_em DateTime @default(now())
+
+  @@map("usuarios")
+}
+
+// 2. PACIENTES
 model Paciente {
   id           String        @id @default(uuid())
   nome         String
@@ -17,14 +31,16 @@ model Paciente {
   createdAt    DateTime      @default(now())
 }
 
+// 3. SERVIÇOS / PROCEDIMENTOS
 model Servico {
-  id              String        @id @default(uuid())
-  nome            String
-  duracao_minutos Int
-  valor           Decimal       @db.Decimal(10, 2)
-  agendamentos    Agendamento[]
+  id               String        @id @default(uuid())
+  nome             String
+  duracao_minutos  Int
+  valor            Decimal       @db.Decimal(10, 2)
+  agendamentos     Agendamento[]
 }
 
+// 4. AGENDAMENTOS (Com Status via Enum)
 model Agendamento {
   id          String            @id @default(uuid())
   data_inicio DateTime
@@ -40,24 +56,28 @@ model Agendamento {
   createdAt   DateTime          @default(now())
 }
 
-model Usuario {
-  id        String   @id @default(uuid())
-  nome      String
-  email     String   @unique
-  senha     String   
-  criado_em DateTime @default(now())
-
-  @@map("usuarios")
-}
-
+// 5. BLOQUEIOS (Pausas manuais na agenda)
 model Bloqueio {
   id          String   @id @default(uuid())
   data_inicio DateTime
   data_fim    DateTime
-  motivo      String?  
+  motivo      String?
   criado_em   DateTime @default(now())
 }
 
+// 6. CONFIGURAÇÕES DE EXPEDIENTE (Regras de Ouro)
+model ConfiguracaoAgenda {
+  id            Int     @id @default(autoincrement())
+  dia_semana    Int     @unique // 0 (Dom) a 6 (Sab)
+  nome          String  // Ex: Segunda-feira
+  ativo         Boolean @default(true)
+  abertura      String  // Ex: "08:00"
+  fechamento    String  // Ex: "18:00"
+  almoco_inicio String  // Ex: "12:00"
+  almoco_fim    String  // Ex: "13:00"
+}
+
+// ENUMS (Listas fixas de opções)
 enum StatusAgendamento {
   AGENDADO
   CONFIRMADO

@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { BloqueioModule } from './bloqueio/bloqueio.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LembreteModule } from './lembrete/lembrete.module';
+import { ConfiguracaoAgendaModule } from './configuracao-agenda/configuracao-agenda.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { LembreteModule } from './lembrete/lembrete.module';
     AuthModule, 
     BloqueioModule,
     DashboardModule, 
-    LembreteModule
+    LembreteModule, ConfiguracaoAgendaModule
   ],
   controllers: [AppController],
   providers: [AppService],
