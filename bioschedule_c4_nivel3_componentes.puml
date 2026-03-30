@@ -1,46 +1,55 @@
 @startuml C4_Component_BioSchedule_Backend
-!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-title Diagrama de Componentes (Nível 3) - API Backend (NestJS)
+title Diagrama de Componentes (Nível 3 ) - API Backend (NestJS)
 
-Container(frontend, "Frontend Web", "Next.js / React", "Interface da clínica")
-ContainerDb(database, "Banco de Dados", "PostgreSQL", "Persistência relacional")
-System_Ext(email_system, "Sistema de E-mail (SMTP)", "Envio de notificações")
+Container(frontend, "Frontend Web", "React / Vite", "Interface SPA da clínica")
+ContainerDb(database, "Banco de Dados", "PostgreSQL", "Persistência relacional via Prisma")
+System_Ext(email_system, "Sistema de E-mail (SMTP)", "Envio de lembretes e confirmações")
 
 Container_Boundary(backend, "API Backend - NestJS") {
 
-    Component(auth_module, "Auth Module", "NestJS Guard / JWT", "Responsável pela autenticação e autorização de usuários. Protege os endpoints da API com tokens JWT (RNF03)")
+    Component(auth_module, "Auth Module", "NestJS Guard / JWT / Passport", "Responsável pela autenticação e autorização de usuários. Protege endpoints com tokens JWT.")
 
-    Component(paciente_controller, "Paciente Controller", "NestJS Controller", "Expõe endpoints REST para CRUD completo de pacientes: criação, listagem, atualização e remoção (RF01)")
+    Component(usuario_controller, "Usuário Controller", "NestJS Controller", "Gerencia o cadastro e perfil de funcionários da clínica.")
 
-    Component(servico_controller, "Serviço Controller", "NestJS Controller", "Expõe endpoints REST para gerenciamento do catálogo de serviços com preço e duração (RF02)")
+    Component(paciente_controller, "Paciente Controller", "NestJS Controller", "Expõe endpoints REST para gestão completa de pacientes (RF02).")
 
-    Component(agendamento_controller, "Agendamento Controller", "NestJS Controller", "Expõe endpoints REST para criação e atualização de agendamentos, incluindo controle de status (RF03 / RF04)")
+    Component(servico_controller, "Serviço Controller", "NestJS Controller", "Gerencia o catálogo de serviços com preço e duração (RF03).")
 
-    Component(agendamento_service, "Agendamento Service", "NestJS Service", "Contém a lógica de negócio central: calcula data_fim com base na duração do serviço e valida conflitos de horário antes de persistir (RF03)")
+    Component(agendamento_controller, "Agendamento Controller", "NestJS Controller", "Expõe endpoints para criação e atualização de agendamentos (RF04).")
 
-    Component(notification_service, "Notification Service", "NestJS Service", "Serviço responsável por enviar e-mails de confirmação e lembretes de agendamento ao paciente")
+    Component(agendamento_service, "Agendamento Service", "NestJS Service", "Contém a lógica de negócio central: valida conflitos de horários e bloqueios manuais (RF04/RF05).")
 
-    Component(prisma_service, "Prisma Service", "Prisma ORM", "Camada de abstração do banco de dados. Gerencia todas as queries, transações e migrations com type-safety (RNF01 / RNF04)")
+    Component(bloqueio_controller, "Bloqueio Controller", "NestJS Controller", "Permite a criação de pausas manuais na agenda da clínica (RF05).")
+
+    Component(config_agenda_controller, "Configuração Agenda Controller", "NestJS Controller", "Gerencia as regras de expediente, jornada e almoço (RF06).")
+
+    Component(dashboard_service, "Dashboard Service", "NestJS Service", "Provê métricas e resumos para a visualização gerencial (RF07).")
+
+    Component(lembrete_service, "Lembrete Service", "NestJS Service", "Serviço para notificações de agendamento via e-mail.")
+
+    Component(prisma_service, "Prisma Service", "Prisma ORM", "Camada de abstração do banco de dados para todas as entidades (RNF01).")
 
 }
 
 Rel(frontend, auth_module, "Autentica usuário via", "JSON / HTTPS")
-Rel(frontend, paciente_controller, "Faz chamadas CRUD de pacientes", "JSON / HTTPS")
-Rel(frontend, servico_controller, "Faz chamadas CRUD de serviços", "JSON / HTTPS")
+Rel(frontend, paciente_controller, "CRUD de pacientes", "JSON / HTTPS")
+Rel(frontend, servico_controller, "CRUD de serviços", "JSON / HTTPS")
 Rel(frontend, agendamento_controller, "Cria e gerencia agendamentos", "JSON / HTTPS")
-
-Rel(paciente_controller, auth_module, "Valida token de acesso via", "Guard")
-Rel(servico_controller, auth_module, "Valida token de acesso via", "Guard")
-Rel(agendamento_controller, auth_module, "Valida token de acesso via", "Guard")
+Rel(frontend, bloqueio_controller, "Cria e gerencia bloqueios", "JSON / HTTPS")
+Rel(frontend, config_agenda_controller, "Configura horários de expediente", "JSON / HTTPS")
 
 Rel(agendamento_controller, agendamento_service, "Delega lógica de negócio para")
-Rel(agendamento_service, notification_service, "Aciona após confirmar agendamento")
-Rel(notification_service, email_system, "Envia e-mail via", "SMTP")
+Rel(agendamento_service, lembrete_service, "Aciona após confirmar agendamento")
+Rel(lembrete_service, email_system, "Envia e-mail via", "SMTP")
 
 Rel(paciente_controller, prisma_service, "Persiste dados via")
 Rel(servico_controller, prisma_service, "Persiste dados via")
 Rel(agendamento_service, prisma_service, "Consulta e persiste dados via")
+Rel(bloqueio_controller, prisma_service, "Persiste dados via")
+Rel(config_agenda_controller, prisma_service, "Persiste dados via")
+Rel(usuario_controller, prisma_service, "Persiste dados via")
 
 Rel(prisma_service, database, "Lê e escreve via", "TCP / SQL")
 
