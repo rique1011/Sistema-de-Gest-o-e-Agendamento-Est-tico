@@ -40,11 +40,11 @@ Clínicas de estética enfrentam desafios críticos na gestão de horários e na
 
 ### 🛠 Requisitos Não Funcionais (RNF)
 
-*   **RNF01 - Persistência:** Banco de dados relacional PostgreSQL via Prisma ORM.
-*   **RNF02 - Segurança:** Senhas criptografadas com Bcrypt e tokens JWT.
-*   **RNF03 - Frontend Moderno:** SPA (Single Page Application) com React, Vite e Tailwind CSS.
-*   **RNF04 - API REST:** Backend estruturado seguindo os princípios de modularidade do NestJS.
-*   **RNF05 - Documentação:** Documentação de API via Swagger.
+*   **RNF01 - Confiabilidade e Integridade de Dados:** O sistema deve garantir a persistência segura e íntegra dos dados, utilizando um banco de dados relacional para manter a consistência e a rastreabilidade das informações.
+*   **RNF02 - Segurança Robusta:** O sistema deve implementar mecanismos de segurança robustos para proteger dados sensíveis e controlar o acesso, incluindo autenticação forte e criptografia de informações críticas.
+*   **RNF03 - Usabilidade e Responsividade:** A interface do usuário deve ser intuitiva, responsiva e oferecer uma experiência de uso fluida em diferentes dispositivos, garantindo alta interatividade e feedback visual.
+*   **RNF04 - Manutenibilidade e Escalabilidade:** A arquitetura do sistema deve ser modular e bem definida, facilitando a manutenção, a evolução e a escalabilidade para suportar o crescimento futuro da aplicação.
+*   **RNF05 - Interoperabilidade e Clareza da API:** A API deve ser bem documentada e seguir padrões RESTful, permitindo fácil integração com outras aplicações e clareza para desenvolvedores que a consumirão.
 
 ## 4. Tecnologias Utilizadas
 
