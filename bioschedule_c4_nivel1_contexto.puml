@@ -1,7 +1,7 @@
 @startuml C4_Context_BioSchedule
-!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-title Diagrama de Contexto (Nível 1) - BioSchedule
+title Diagrama de Contexto (Nível 1 ) - BioSchedule
 
 Person(recepcionista, "Recepcionista / Admin", "Usuário responsável por cadastrar pacientes, serviços e gerenciar a agenda da clínica")
 Person(biomedico, "Biomédico / Profissional", "Profissional que realiza os procedimentos e consulta o histórico dos pacientes")
