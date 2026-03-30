@@ -1,88 +1,89 @@
-# 🩺 BioSchedule - Sistema de Gestão e Agendamento Estético
+# 🩺 BioSchedule - Sistema de Gestão e Agendamento 
 
-O **BioSchedule** é uma plataforma modular de alta performance projetada para clínicas de biomedicina estética. Sua arquitetura flexível permite a fácil adaptação para qualquer setor que dependa de agendamentos e prontuários estruturados (odontologia, estúdios de tatuagem ou consultórios).
+O **BioSchedule** é uma plataforma modular de alta performance projetada para clínicas de biomedicina estética, oferecendo uma solução completa para **gestão de agendamentos e prontuários**. Sua arquitetura flexível permite a fácil adaptação para qualquer setor que dependa de agendamentos e prontuários estruturados, como odontologia, estúdios de tatuagem ou consultórios médicos.
+
+O projeto está organizado em branches:
+*   `main`: Documentação e diagramas.
+*   `backend`: API REST desenvolvida com NestJS.
+*   `frontend`: Interface web moderna desenvolvida com React e Vite.
 
 ---
 
 ## 1. Domínio do Problema
-Clínicas de estética enfrentam desafios críticos na gestão de horários e na manutenção de históricos detalhados. O sistema visa resolver:
-* **Fragmentação de dados:** Centraliza prontuários, fotos de evolução e agendamentos em um só lugar.
-* **Ociosidade e Conflitos:** Otimiza a agenda com base na duração real de cada procedimento técnico.
-* **Segurança Jurídica:** Mantém um registro cronológico de intervenções para acompanhamento de resultados.
 
-## 2. Funcionalidades Principais (Operations)
-* **Agenda Dinâmica com Bloqueio de Conflitos:** O backend valida a disponibilidade entre `data_inicio` e `data_fim`, impedindo sobreposições.
-* **Cálculo Automático de Tempo:** Otimização de janelas de atendimento baseada na duração cadastrada de cada serviço.
-* **Prontuário de Evolução Estética:** Registro de anamnese e acompanhamento de resultados vinculado ao histórico do paciente.
-* **Segurança Robusta:** Autenticação via JWT (JSON Web Token) e criptografia de senhas com Bcrypt.
-* **Motor de Serviços Configurável:** Interface para cadastrar qualquer serviço com tempos e valores variados (Adaptabilidade).
+Clínicas de estética enfrentam desafios críticos na gestão de horários e na manutenção de históricos detalhados. O sistema visa resolver:
+
+*   **Fragmentação de dados:** Centraliza prontuários, dados de pacientes e históricos de procedimentos.
+*   **Ociosidade e Conflitos:** Otimiza a agenda com validações automáticas de disponibilidade e bloqueios manuais.
+*   **Gestão de Expediente:** Configuração flexível de horários de abertura, fechamento e intervalos de almoço.
+
+## 2. Funcionalidades Principais
+
+*   **Agenda Inteligente:** Validação de conflitos entre agendamentos e bloqueios manuais.
+*   **Gestão de Pacientes:** Cadastro completo com controle de CPF único e histórico.
+*   **Catálogo de Serviços:** Definição de procedimentos com duração em minutos e valores.
+*   **Dashboard Gerencial:** Visualização de métricas e status de atendimentos (Agendado, Confirmado, Cancelado, Concluído, Faltou).
+*   **Configuração de Expediente:** Regras de horários por dia da semana.
+*   **Segurança:** Autenticação JWT e proteção de rotas.
 
 ## 3. Requisitos do Sistema
 
 ### ✅ Requisitos Funcionais (RF)
-* **RF01 - Gestão de Usuários (Staff):** Cadastro de funcionários com senhas criptografadas.
-* **RF02 - Autenticação Segura:** Sistema de Login com emissão de Token JWT (Bearer).
-* **RF03 - Gestão de Pacientes:** CRUD completo e histórico de procedimentos.
-* **RF04 - Catálogo de Serviços:** Cadastro de procedimentos com preço e tempo de duração.
-* **RF05 - Agenda Inteligente:** Bloqueio automático de horários conflitantes.
-* **RF06 - Filtro de Atendimento:** Busca de agendamentos por data para a recepção.
+
+*   **RF01 - Autenticação:** Login seguro para funcionários.
+*   **RF02 - Gestão de Pacientes:** CRUD completo de pacientes.
+*   **RF03 - Gestão de Serviços:** Cadastro de procedimentos com tempo e valor.
+*   **RF04 - Agendamentos:** Criação e gestão de horários com cálculo automático de término.
+*   **RF05 - Bloqueios de Agenda:** Criação de pausas manuais (ex: manutenção, folgas).
+*   **RF06 - Configuração de Horários:** Definição de jornada de trabalho e almoço.
+*   **RF07 - Dashboard:** Resumo de atividades e status da clínica.
 
 ### 🛠 Requisitos Não Funcionais (RNF)
-* **RNF01 - Persistência:** PostgreSQL para garantir integridade referencial.
-* **RNF02 - Segurança:** Implementação de `AuthGuards` em rotas sensíveis.
-* **RNF03 - Documentação:** API totalmente documentada via Swagger (OpenAPI).
-* **RNF04 - Testabilidade:** Cobertura de testes unitários e de integração (E2E).
+
+*   **RNF01 - Persistência:** Banco de dados relacional PostgreSQL via Prisma ORM.
+*   **RNF02 - Segurança:** Senhas criptografadas com Bcrypt e tokens JWT.
+*   **RNF03 - Frontend Moderno:** SPA (Single Page Application) com React, Vite e Tailwind CSS.
+*   **RNF04 - API REST:** Backend estruturado seguindo os princípios de modularidade do NestJS.
+*   **RNF05 - Documentação:** Documentação de API via Swagger.
 
 ## 4. Tecnologias Utilizadas
 
-| Tecnologia | Função | Justificativa |
-| :--- | :--- | :--- |
-| **Node.js (NestJS)** | Backend | Arquitetura modular (MVC) e tipagem segura com TypeScript. |
-| **PostgreSQL** | Banco de Dados | Confiabilidade para dados estruturados. |
-| **Prisma ORM** | Integração | Facilita a manutenção do banco e garante Type-safety. |
-| **JWT & Bcrypt** | Segurança | Autenticação padrão de mercado e proteção de dados sensíveis. |
-| **Swagger** | Documentação | Facilita o consumo da API pelo Frontend. |
-| **Jest & Supertest** | Testes | Garantia de qualidade e validação de regras de negócio. |
-| **Docker** | Infraestrutura | Ambiente isolado com Docker Compose. |
+### Backend
+| Tecnologia | Função |
+| :--- | :--- |
+| **Node.js (NestJS)** | Framework principal |
+| **Prisma ORM** | Modelagem e acesso ao banco |
+| **PostgreSQL** | Banco de dados relacional |
+| **Passport & JWT** | Estratégia de autenticação |
 
-## 5. Como Executar o Projeto
+### Frontend
+| Tecnologia | Função |
+| :--- | :--- |
+| **React 19** | Biblioteca de interface |
+| **Vite** | Build tool e dev server |
+| **Tailwind CSS** | Estilização utilitária |
+| **Axios** | Consumo de API |
+| **Lucide React** | Biblioteca de ícones |
 
-### Pré-requisitos
-* Docker e Docker Compose instalados.
-* Node.js v18+.
+## 5. Arquitetura do Sistema (Diagramas C4)
 
-### Instalação
-1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/seu-usuario/bioschedule-backend.git](https://github.com/seu-usuario/bioschedule-backend.git)
+Os diagramas C4 (localizados na branch `main`) descrevem a arquitetura:
 
-Suba o banco de dados via Docker:
+1.  **Contexto (Nível 1):** Visão geral dos usuários e sistemas externos.
+2.  **Contêineres (Nível 2):** Divisão entre Frontend, Backend e Banco de Dados.
+3.  **Componentes (Nível 3):** Detalhamento dos módulos internos da API NestJS.
 
-Bash
-docker-compose up -d
-Configuração do ambiente:
-Crie um arquivo .env na raiz do projeto seguindo o modelo:
+## 6. Como Executar o Projeto
 
-Snippet de código
-DATABASE_URL="postgresql://admin:senha123@localhost:5432/bioschedule?schema=public"
-JWT_SECRET="sua_chave_secreta_segura"
-Instale as dependências e aplique as migrations:
+### Backend (`branch: backend`)
+1. Clone a branch: `git clone -b backend https://github.com/rique1011/Sistema-de-Gest-o-e-Agendamento-Est-tico.git`
+2. Instale: `npm install`
+3. Configure o `.env` com `DATABASE_URL` e `JWT_SECRET`.
+4. Migrations: `npx prisma migrate dev`
+5. Inicie: `npm run start:dev`
 
-Bash
-npm install
-npx prisma migrate dev
-Inicie o servidor em modo de desenvolvimento:
-
-Bash
-npm run start:dev
-6. Documentação e Qualidade
-API Documentation (Swagger)
-A documentação interativa das rotas pode ser acessada em:
---> http://localhost:3000/api
-
-Suíte de Testes (Status: All Green)
-O projeto conta com validação automatizada para garantir que novas funcionalidades não quebrem o que já existe:
-
-Testes Unitários: npm run test (Valida lógica de conflitos e serviços).
-
-Testes E2E (Invasão): npm run test:e2e (Valida a eficácia dos filtros de segurança)
+### Frontend (`branch: frontend` )
+1. Clone a branch: `git clone -b frontend https://github.com/rique1011/Sistema-de-Gest-o-e-Agendamento-Est-tico.git`
+2. Instale: `npm install`
+3. Inicie: `npm run dev`
+4. Acesse: `http://localhost:5173`
